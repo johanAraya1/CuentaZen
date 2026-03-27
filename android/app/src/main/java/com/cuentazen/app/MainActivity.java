@@ -1,4 +1,4 @@
-package com.casitaenorden.app;
+package com.cuentazen.app;
 
 import com.getcapacitor.BridgeActivity;
 
