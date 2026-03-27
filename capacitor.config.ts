@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "com.casitaenorden.app",
-  appName: "Casita en Orden",
+  appName: "Cuenta Zen",
   webDir: ".next",
   server: {
     // Produccion web desplegada en Vercel (WebView remota)

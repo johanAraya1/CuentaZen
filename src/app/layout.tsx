@@ -15,8 +15,8 @@ const bodyFont = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "Casita en Orden",
-  description: "Control familiar de ingresos, gastos y cierres mensuales"
+  title: "Cuenta Zen",
+  description: "Controla tus ingresos y gastos con calma y claridad"
 };
 
 export default function RootLayout({

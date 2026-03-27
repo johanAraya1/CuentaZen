@@ -34,8 +34,15 @@ export default function UnlockPage() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
-        <h1>Ingresar</h1>
-        <p>Introduce la clave global para acceder a Casita en Orden.</p>
+        <div className="auth-brand">
+          <img alt="Cuenta Zen" className="auth-logo" src="/brand/cuenta-zen-mark.svg" />
+          <div>
+            <h1>Cuenta Zen</h1>
+            <p className="auth-tagline">Tu billetera en equilibrio</p>
+          </div>
+        </div>
+        <h2>Ingresar</h2>
+        <p>Introduce la clave global para acceder a Cuenta Zen.</p>
 
         <form onSubmit={onSubmit}>
           <label>

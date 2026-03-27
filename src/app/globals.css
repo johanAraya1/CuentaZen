@@ -82,6 +82,14 @@ a {
 
 .brand {
   margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  width: 42px;
+  height: 42px;
 }
 
 .brand h1 {
@@ -418,7 +426,30 @@ thead th {
 
 .auth-card h1 {
   font-size: 1.38rem;
-  margin-bottom: 8px;
+  margin-bottom: 2px;
+}
+
+.auth-card h2 {
+  font-size: 1.1rem;
+  margin: 14px 0 8px;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.auth-logo {
+  width: 48px;
+  height: 48px;
+}
+
+.auth-tagline {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 2px;
 }
 
 .auth-card p {

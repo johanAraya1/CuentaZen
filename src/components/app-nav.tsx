@@ -26,8 +26,11 @@ export function AppNav() {
   return (
     <aside className="app-nav">
       <div className="brand">
-        <h1>Casita en Orden</h1>
-        <p>Johan + Wendy</p>
+        <img alt="Cuenta Zen" className="brand-logo" src="/brand/cuenta-zen-mark.svg" />
+        <div>
+          <h1>Cuenta Zen</h1>
+          <p>Tu billetera en equilibrio</p>
+        </div>
       </div>
 
       <nav className="nav-links">

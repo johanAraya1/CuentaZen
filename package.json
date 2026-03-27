@@ -2,7 +2,7 @@
   "name": "app-de-ingresos",
   "version": "1.0.0",
   "private": true,
-  "description": "Casita en Orden: app familiar de presupuesto con Next.js + PostgreSQL",
+  "description": "Cuenta Zen: app de presupuesto con Next.js + PostgreSQL",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
