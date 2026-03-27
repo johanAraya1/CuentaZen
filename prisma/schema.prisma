@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Currency {
+  CRC
+  USD
+}
+
+enum Frequency {
+  MENSUAL
+  QUINCENAL
+}
+
+enum CategoryType {
+  FIJO
+  VARIABLE
+  IMPREVISTA
+}
+
+enum MonthStatus {
+  OPEN
+  CLOSED
+}
+
+enum Contributor {
+  JOHAN
+  WENDY
+  AMBOS
+}
+
+enum CategoryOwner {
+  JOHAN
+  WENDY
+  AMBOS
+}
+
+model AppSetting {
+  id            Int      @id @default(1)
+  exchangeRate  Decimal  @db.Decimal(10, 2)
+  globalKeyHash String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model BudgetMonth {
+  id          String              @id @default(cuid())
+  monthStart  DateTime            @unique @db.Date
+  status      MonthStatus         @default(OPEN)
+  closedAt    DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  incomes     MonthIncome[]
+  categories  MonthCategory[]
+  expenses    Expense[]
+  closure     MonthClosure?
+  preclosures FortnightPreclosure[]
+
+  @@index([status])
+  @@index([monthStart])
+}
+
+model IncomeTemplate {
+  id            String      @id @default(cuid())
+  name          String
+  amount        Decimal     @db.Decimal(12, 2)
+  currency      Currency
+  frequency     Frequency
+  owner         Contributor @default(JOHAN)
+  isActive      Boolean     @default(true)
+  effectiveFrom DateTime    @db.Date
+  effectiveTo   DateTime?   @db.Date
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  monthIncomes  MonthIncome[]
+}
+
+model MonthIncome {
+  id               String         @id @default(cuid())
+  monthId          String
+  templateId       String?
+  name             String
+  amount           Decimal        @db.Decimal(12, 2)
+  currency         Currency
+  frequency        Frequency
+  occurrenceNumber Int            @default(1)
+  owner            Contributor    @default(JOHAN)
+  createdAt        DateTime       @default(now())
+  month            BudgetMonth    @relation(fields: [monthId], references: [id], onDelete: Cascade)
+  template         IncomeTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  @@index([monthId])
+  @@index([templateId])
+  @@unique([monthId, templateId, occurrenceNumber])
+}
+
+model CategoryTemplate {
+  id              String          @id @default(cuid())
+  name            String
+  type            CategoryType
+  owner           CategoryOwner   @default(AMBOS)
+  monthlyBudget   Decimal         @db.Decimal(12, 2)
+  currency        Currency
+  biweeklyControl Boolean         @default(false)
+  alertsEnabled   Boolean         @default(true)
+  alertPercentage Int             @default(80)
+  isActive        Boolean         @default(true)
+  effectiveFrom   DateTime        @db.Date
+  effectiveTo     DateTime?       @db.Date
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  monthCategories MonthCategory[]
+}
+
+model MonthCategory {
+  id              String            @id @default(cuid())
+  monthId         String
+  templateId      String?
+  name            String
+  type            CategoryType
+  owner           CategoryOwner     @default(AMBOS)
+  monthlyBudget   Decimal           @db.Decimal(12, 2)
+  currency        Currency
+  biweeklyControl Boolean           @default(false)
+  alertsEnabled   Boolean           @default(true)
+  alertPercentage Int               @default(80)
+  isActive        Boolean           @default(true)
+  isOneOff        Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  month           BudgetMonth       @relation(fields: [monthId], references: [id], onDelete: Cascade)
+  template        CategoryTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  expenses        Expense[]
+
+  @@index([monthId])
+  @@index([templateId])
+  @@unique([monthId, templateId])
+}
+
+model Expense {
+  id        String        @id @default(cuid())
+  monthId   String
+  categoryId String
+  amount    Decimal       @db.Decimal(12, 2)
+  currency  Currency
+  paidBy    Contributor
+  spentAt   DateTime      @default(now())
+  comment   String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  month     BudgetMonth   @relation(fields: [monthId], references: [id], onDelete: Cascade)
+  category  MonthCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([monthId])
+  @@index([categoryId])
+  @@index([spentAt])
+}
+
+model MonthClosure {
+  id       String      @id @default(cuid())
+  monthId  String      @unique
+  snapshot Json
+  closedAt DateTime    @default(now())
+  month    BudgetMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
+}
+
+model FortnightPreclosure {
+  id          String      @id @default(cuid())
+  monthId     String
+  fortnight   Int
+  snapshot    Json
+  generatedAt DateTime    @default(now())
+  month       BudgetMonth @relation(fields: [monthId], references: [id], onDelete: Cascade)
+
+  @@index([monthId, fortnight])
+}

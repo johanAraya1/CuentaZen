@@ -1,0 +1,44 @@
+{
+  "name": "app-de-ingresos",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Casita en Orden: app familiar de presupuesto con Next.js + PostgreSQL",
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
+    "apk:sync": "npx cap sync android",
+    "apk:open": "npx cap open android",
+    "apk:build:debug": "cd android && gradlew.bat assembleDebug",
+    "apk:build:release": "cd android && gradlew.bat assembleRelease"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "@prisma/client": "^6.16.2",
+    "bcryptjs": "^3.0.3",
+    "next": "^15.5.12",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2",
+    "@types/node": "^25.2.3",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "eslint": "^9.14.0",
+    "eslint-config-next": "^15.5.12",
+    "prisma": "^6.16.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

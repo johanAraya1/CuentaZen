@@ -1,0 +1,15 @@
+.next
+node_modules
+.env
+.env.local
+dist
+coverage
+*.log
+.tmp_*.html
+.tmp_*.js
+prisma/dev.db
+prisma/dev.db-journal
+android/local.properties
+android/.gradle
+android/build
+android/app/build
