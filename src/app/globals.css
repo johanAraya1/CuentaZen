@@ -241,6 +241,13 @@ a {
   border-color: var(--line);
 }
 
+.btn.active,
+.btn-secondary.active {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  color: var(--text);
+}
+
 .btn-danger {
   background: color-mix(in srgb, var(--danger) 16%, transparent);
   color: var(--danger);
@@ -285,6 +292,64 @@ textarea {
   max-height: 60vh;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.table-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.table-controls input {
+  max-width: 280px;
+}
+
+.toggle-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cards-list {
+  display: grid;
+  gap: 12px;
+}
+
+.card-item {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.card-title {
+  font-weight: 700;
+}
+
+.card-amount {
+  font-weight: 700;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.card-note {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 table {
@@ -489,6 +554,52 @@ thead th {
   font-size: 0.9rem;
 }
 
+.action-panel {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.action-panel-body {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--surface);
+  display: grid;
+  gap: 10px;
+}
+
+.quick-panel {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  background: var(--surface);
+  margin-bottom: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.quick-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.quick-grid {
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+}
+
+.nav-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.bottom-nav {
+  display: none;
+}
+
 @media (max-width: 1080px) {
   .app-shell {
     grid-template-columns: 1fr;
@@ -511,6 +622,7 @@ thead th {
 @media (max-width: 700px) {
   .main-area {
     padding: 14px;
+    padding-bottom: 84px;
   }
 
   .page-section {
@@ -555,5 +667,68 @@ thead th {
 
   .month-legend {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .app-nav {
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .brand {
+    margin-bottom: 0;
+  }
+
+  .brand h1 {
+    font-size: 1.05rem;
+  }
+
+  .brand p {
+    font-size: 0.78rem;
+  }
+
+  .nav-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    border-top: 1px solid var(--line);
+    z-index: 20;
+  }
+
+  .bottom-nav a {
+    text-align: center;
+    padding: 8px 6px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    border: 1px solid transparent;
+  }
+
+  .bottom-nav a.active {
+    color: var(--text);
+    background: var(--surface-2);
+    border-color: var(--line);
+  }
+
+  .quick-grid {
+    grid-template-columns: 1fr;
   }
 }

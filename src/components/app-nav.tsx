@@ -44,12 +44,23 @@ export function AppNav() {
         })}
       </nav>
 
-      <div style={{ marginTop: "20px", display: "grid", gap: "10px" }}>
+      <div className="nav-actions" style={{ marginTop: "20px" }}>
         <ThemeToggle />
         <button className="btn btn-secondary" onClick={logout} type="button">
           Bloquear
         </button>
       </div>
+
+      <nav className="bottom-nav">
+        {NAV_ITEMS.slice(0, 4).map((item) => {
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          return (
+            <Link key={item.href} className={isActive ? "active" : ""} href={item.href}>
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
     </aside>
   );
 }

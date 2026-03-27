@@ -126,6 +126,7 @@ export async function POST(request: Request) {
 
   try {
     const payload = expenseSchema.parse(await request.json());
+    const spentAt = parseSpentAt(payload.spentAt);
     const category = await prisma.monthCategory.findUnique({
       where: { id: payload.categoryId },
       include: {
@@ -153,7 +154,8 @@ export async function POST(request: Request) {
         amount: payload.amount,
         currency: payload.currency,
         paidBy: payload.paidBy,
-        comment: payload.comment && payload.comment.length > 0 ? payload.comment : null
+        comment: payload.comment && payload.comment.length > 0 ? payload.comment : null,
+        ...(spentAt ? { spentAt } : {})
       },
       include: {
         category: {
@@ -182,4 +184,20 @@ export async function POST(request: Request) {
 
 function roundForClient(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function parseSpentAt(value?: string) {
+  if (!value) {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? `${trimmed}T12:00:00` : trimmed;
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error("Fecha invalida");
+  }
+  return date;
 }

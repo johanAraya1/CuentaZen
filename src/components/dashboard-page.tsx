@@ -102,6 +102,9 @@ export function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"GENERAL" | ContributorKey>("GENERAL");
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const [categoryView, setCategoryView] = useState<"TABLE" | "CARDS">("TABLE");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [detailsOpen, setDetailsOpen] = useState<Record<ContributorKey, boolean>>({
     JOHAN: false,
     WENDY: false
@@ -142,8 +145,24 @@ export function DashboardPage() {
     { key: "WENDY", label: "Wendy" }
   ];
 
+  const filteredCategories = useMemo(() => {
+    if (!data) {
+      return [];
+    }
+    const term = categoryFilter.trim().toLowerCase();
+    if (!term) {
+      return data.categories;
+    }
+    return data.categories.filter((category) => category.name.toLowerCase().includes(term));
+  }, [data, categoryFilter]);
+
   async function handleCloseMonth() {
-    if (!window.confirm("Se cerrara el mes actual y se abrira automaticamente el siguiente. Continuar?")) {
+    const label = monthLabel ? `el mes de ${monthLabel}` : "el mes actual";
+    if (
+      !window.confirm(
+        `Vas a cerrar ${label}. Esto bloqueara la edicion de ingresos y gastos y abrira el siguiente mes automaticamente. Continuar?`
+      )
+    ) {
       return;
     }
 
@@ -170,6 +189,15 @@ export function DashboardPage() {
   }
 
   async function handlePreclose() {
+    const label = monthLabel ? `el mes de ${monthLabel}` : "el mes actual";
+    if (
+      !window.confirm(
+        `Se generara un precierre quincenal de ${label}. No modifica datos, solo guarda un resumen. Continuar?`
+      )
+    ) {
+      return;
+    }
+
     setActionType("PRECLOSE");
     setActionLoading(true);
     setError(null);
@@ -378,23 +406,41 @@ export function DashboardPage() {
           </article>
         </div>
 
-        <div className="btn-row">
-          <button
-            className="btn btn-primary"
-            disabled={actionLoading || data.month.status !== "OPEN"}
-            onClick={handleCloseMonth}
-            type="button"
-          >
-            {actionLoading && actionType === "CLOSE" ? "Cerrando..." : "Cerrar mes"}
-          </button>
+        <div className="action-panel">
           <button
             className="btn btn-secondary"
-            disabled={actionLoading || data.month.status !== "OPEN"}
-            onClick={handlePreclose}
+            onClick={() => setActionsOpen((prev) => !prev)}
             type="button"
           >
-            {actionLoading && actionType === "PRECLOSE" ? "Generando..." : "Generar precierre quincenal"}
+            {actionsOpen ? "Ocultar acciones" : "Acciones del mes"}
           </button>
+          {actionsOpen ? (
+            <div className="action-panel-body">
+              <p className="muted">
+                Usa estas acciones cuando quieras cerrar el mes o generar un precierre quincenal.
+              </p>
+              <div className="btn-row">
+                <button
+                  className="btn btn-primary"
+                  disabled={actionLoading || data.month.status !== "OPEN"}
+                  onClick={handleCloseMonth}
+                  type="button"
+                >
+                  {actionLoading && actionType === "CLOSE" ? "Cerrando..." : "Cerrar mes"}
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  disabled={actionLoading || data.month.status !== "OPEN"}
+                  onClick={handlePreclose}
+                  type="button"
+                >
+                  {actionLoading && actionType === "PRECLOSE"
+                    ? "Generando..."
+                    : "Generar precierre quincenal"}
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
 
         {error ? <p className="error-box">{error}</p> : null}
@@ -411,70 +457,148 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Categoria</th>
-                <th>Presupuesto</th>
-                <th>Gastado</th>
-                <th>Disponible</th>
-                <th>% Consumido</th>
-                <th>Alerta</th>
-                <th>Control quincenal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.categories.length === 0 ? (
+        <div className="table-controls">
+          <input
+            placeholder="Filtrar categoria..."
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+          />
+          <div className="toggle-group">
+            <button
+              className={`btn btn-secondary ${categoryView === "TABLE" ? "active" : ""}`}
+              onClick={() => setCategoryView("TABLE")}
+              type="button"
+            >
+              Tabla
+            </button>
+            <button
+              className={`btn btn-secondary ${categoryView === "CARDS" ? "active" : ""}`}
+              onClick={() => setCategoryView("CARDS")}
+              type="button"
+            >
+              Tarjetas
+            </button>
+          </div>
+        </div>
+
+        {categoryView === "TABLE" ? (
+          <div className="table-wrap">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan={7}>No hay categorias activas para este mes.</td>
+                  <th>Categoria</th>
+                  <th>Presupuesto</th>
+                  <th>Gastado</th>
+                  <th>Disponible</th>
+                  <th>% Consumido</th>
+                  <th>Alerta</th>
+                  <th>Control quincenal</th>
                 </tr>
-              ) : (
-                data.categories.map((category) => (
-                  <tr key={category.id}>
-                    <td>{category.name}</td>
-                    <td>{formatCurrency(category.budget, category.currency)}</td>
-                    <td>{formatCurrency(category.spent, category.currency)}</td>
-                    <td>{formatCurrency(category.available, category.currency)}</td>
-                    <td className={`alert-text-${category.alertColor}`}>
-                      {category.consumedPercent.toFixed(1)}%
-                    </td>
-                    <td>
-                      {category.alertsEnabled ? (
-                        <span className={`inline-tag alert-text-${category.alertColor}`}>Activa</span>
-                      ) : (
-                        <span className="inline-tag muted">Desactivada</span>
-                      )}
-                    </td>
-                    <td>
-                      {!category.biweeklyControl || !category.biweekly ? (
-                        <span className="muted">No</span>
-                      ) : (
-                        <div>
-                          <div>
-                            Q{category.biweekly.fortnight} presupuesto:{" "}
-                            {formatCurrency(category.biweekly.budget, category.currency)}
-                          </div>
-                          <div>
-                            Q{category.biweekly.fortnight} gastado:{" "}
-                            {formatCurrency(category.biweekly.spent, category.currency)}
-                          </div>
-                          <div>
-                            Q{category.biweekly.fortnight} disponible:{" "}
-                            {formatCurrency(category.biweekly.available, category.currency)}
-                          </div>
-                          <div className="muted">
-                            Proy mensual: {formatCurrency(category.biweekly.projectedMonthly, category.currency)}
-                          </div>
-                        </div>
-                      )}
+              </thead>
+              <tbody>
+                {filteredCategories.length === 0 ? (
+                  <tr>
+                    <td colSpan={7}>
+                      {data.categories.length === 0
+                        ? "No hay categorias activas para este mes."
+                        : "No hay resultados con ese filtro."}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  filteredCategories.map((category) => (
+                    <tr key={category.id}>
+                      <td>{category.name}</td>
+                      <td>{formatCurrency(category.budget, category.currency)}</td>
+                      <td>{formatCurrency(category.spent, category.currency)}</td>
+                      <td>{formatCurrency(category.available, category.currency)}</td>
+                      <td className={`alert-text-${category.alertColor}`}>
+                        {category.consumedPercent.toFixed(1)}%
+                      </td>
+                      <td>
+                        {category.alertsEnabled ? (
+                          <span className={`inline-tag alert-text-${category.alertColor}`}>Activa</span>
+                        ) : (
+                          <span className="inline-tag muted">Desactivada</span>
+                        )}
+                      </td>
+                      <td>
+                        {!category.biweeklyControl || !category.biweekly ? (
+                          <span className="muted">No</span>
+                        ) : (
+                          <div>
+                            <div>
+                              Q{category.biweekly.fortnight} presupuesto:{" "}
+                              {formatCurrency(category.biweekly.budget, category.currency)}
+                            </div>
+                            <div>
+                              Q{category.biweekly.fortnight} gastado:{" "}
+                              {formatCurrency(category.biweekly.spent, category.currency)}
+                            </div>
+                            <div>
+                              Q{category.biweekly.fortnight} disponible:{" "}
+                              {formatCurrency(category.biweekly.available, category.currency)}
+                            </div>
+                            <div className="muted">
+                              Proy mensual: {formatCurrency(category.biweekly.projectedMonthly, category.currency)}
+                            </div>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="cards-list">
+            {filteredCategories.length === 0 ? (
+              <p className="muted">
+                {data.categories.length === 0
+                  ? "No hay categorias activas para este mes."
+                  : "No hay resultados con ese filtro."}
+              </p>
+            ) : (
+              filteredCategories.map((category) => (
+                <article className="card-item" key={category.id}>
+                  <div className="card-row">
+                    <span className="card-title">{category.name}</span>
+                    <span className="card-amount">
+                      {formatCurrency(category.spent, category.currency)}
+                    </span>
+                  </div>
+                  <div className="card-row">
+                    <span className="muted">Presupuesto</span>
+                    <span>{formatCurrency(category.budget, category.currency)}</span>
+                  </div>
+                  <div className="card-row">
+                    <span className="muted">Disponible</span>
+                    <span>{formatCurrency(category.available, category.currency)}</span>
+                  </div>
+                  <div className="card-row">
+                    <span className="muted">% Consumido</span>
+                    <span className={`alert-text-${category.alertColor}`}>
+                      {category.consumedPercent.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="card-row">
+                    <span className="muted">Alerta</span>
+                    <span className={`inline-tag alert-text-${category.alertColor}`}>
+                      {category.alertsEnabled ? "Activa" : "Desactivada"}
+                    </span>
+                  </div>
+                  {category.biweeklyControl && category.biweekly ? (
+                    <div className="card-note">
+                      Q{category.biweekly.fortnight} disponible:{" "}
+                      {formatCurrency(category.biweekly.available, category.currency)} · Proy mensual:{" "}
+                      {formatCurrency(category.biweekly.projectedMonthly, category.currency)}
+                    </div>
+                  ) : null}
+                </article>
+              ))
+            )}
+          </div>
+        )}
       </section>
         </>
       ) : (

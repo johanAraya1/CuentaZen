@@ -33,7 +33,8 @@ export const expenseSchema = z.object({
   amount: z.coerce.number().positive("Monto invalido"),
   currency: z.enum(Currency),
   paidBy: z.enum(Contributor),
-  comment: z.string().trim().max(500).optional().or(z.literal(""))
+  comment: z.string().trim().max(500).optional().or(z.literal("")),
+  spentAt: z.string().trim().optional().or(z.literal(""))
 });
 
 export const fixedExpensePaySchema = z.object({

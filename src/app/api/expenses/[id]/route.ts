@@ -18,6 +18,7 @@ export async function PUT(request: Request, context: Context) {
   try {
     const { id } = await context.params;
     const payload = expenseSchema.parse(await request.json());
+    const spentAt = parseSpentAt(payload.spentAt);
 
     const existing = await prisma.expense.findUnique({
       where: { id },
@@ -54,7 +55,8 @@ export async function PUT(request: Request, context: Context) {
         amount: payload.amount,
         currency: payload.currency,
         paidBy: payload.paidBy,
-        comment: payload.comment && payload.comment.length > 0 ? payload.comment : null
+        comment: payload.comment && payload.comment.length > 0 ? payload.comment : null,
+        ...(spentAt ? { spentAt } : {})
       },
       include: {
         category: { select: { name: true } }
@@ -103,4 +105,20 @@ export async function DELETE(_request: Request, context: Context) {
   } catch (error) {
     return jsonError(error, "No se pudo eliminar el gasto");
   }
+}
+
+function parseSpentAt(value?: string) {
+  if (!value) {
+    return null;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const normalized = /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? `${trimmed}T12:00:00` : trimmed;
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error("Fecha invalida");
+  }
+  return date;
 }
